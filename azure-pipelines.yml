@@ -1,0 +1,29 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+jobs:
+- job: run_tests
+  steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '16.x'
+      checkLatest: true
+  - script: |
+      npm install
+    displayName: 'Install Dependencies'
+  - script: |
+      ./node_modules/.bin/ng test --watch=false --browsers=ChromeHeadless
+    displayName: 'Run Unit Tests'
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: 'test-results/**/*.xml'
+      mergeTestResults: true
+  - task: PublishPipelineArtifact@1
+    inputs:
+      targetPath: 'test-results'
+      artifact: 'test-results'
+      publishLocation: 'pipeline'
